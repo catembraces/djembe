@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Estudos de djembe</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <header>
+      <h1>Estudos de djembe</h1>
+      <p>Ordem e referências para prática do bloco.</p>
+    </header>
+
+    <section id="metronome">
+      <h2>Metronome • Ritmo por sílabas</h2>
+      <form>
+        <label for="bpm">BPM</label>
+        <input id="bpm" type="number" value="108" />
+        <label for="pattern">Pattern</label>
+        <input
+          id="pattern"
+          type="text"
+          value="da-chi da-chi da-chi da-da-chi"
+        />
+        <button id="start" type="button">Iniciar</button>
+        <button id="stop" type="button">Parar</button>
+      </form>
+      <div id="patternView" class="pattern-display"></div>
+    </section>
+
+    <main id="app"></main>
+
+    <footer>
+      <p>
+        feito com carinho • adicione ou edite os orixás conforme a ordem do seu
+        bloco
+      </p>
+    </footer>
+    <script src="data.js"></script>
+    <script src="index.js"></script>
+  </body>
+</html>

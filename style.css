@@ -1,0 +1,165 @@
+/* Reset some defaults */
+body,
+h1,
+h2,
+h3,
+p,
+ul {
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: system-ui, sans-serif;
+  line-height: 1.6;
+  background: #fafafa;
+  color: #222;
+  padding: 1rem;
+}
+
+/* Header + footer */
+header,
+footer {
+  text-align: center;
+  margin-bottom: 2rem;
+}
+
+header h1 {
+  font-size: 1.8rem;
+  margin-bottom: 0.5rem;
+}
+
+footer {
+  margin-top: 3rem;
+  font-size: 0.9rem;
+  color: #666;
+}
+
+/* Metronome section */
+#metronome {
+  border: 2px solid #ddd;
+  border-radius: 8px;
+  padding: 1rem;
+  margin-bottom: 2rem;
+  background: #fff;
+}
+
+#metronome h2 {
+  margin-bottom: 0.5rem;
+}
+
+#metronome form {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+#metronome label {
+  font-weight: bold;
+  margin-right: 0.25rem;
+}
+
+#metronome input {
+  padding: 0.25rem 0.5rem;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  width: 80px;
+}
+
+#metronome button {
+  padding: 0.4rem 0.8rem;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  background: #333;
+  color: #fff;
+}
+
+#metronome button:hover {
+  background: #555;
+}
+
+#patternView {
+  margin-top: 1rem;
+  font-size: 1.2rem;
+  letter-spacing: 0.15em;
+}
+
+#patternView span {
+  padding: 0.2rem 0.4rem;
+}
+
+#patternView span.active {
+  background: #ffcc00;
+  border-radius: 4px;
+}
+
+/* Composition cards */
+.composition {
+  border: 2px solid #ddd;
+  border-radius: 8px;
+  padding: 1rem;
+  margin-bottom: 1.5rem;
+  background: #fff;
+}
+
+.composition h2 {
+  margin-bottom: 0.5rem;
+}
+
+.tags {
+  margin-bottom: 0.5rem;
+}
+
+.tag {
+  display: inline-block;
+  background: #eee;
+  border-radius: 4px;
+  padding: 0.2rem 0.5rem;
+  margin-right: 0.25rem;
+  font-size: 0.8rem;
+}
+
+.media {
+  margin: 1rem 0;
+}
+
+.media iframe,
+.media video,
+.media audio {
+  display: block;
+  margin-bottom: 0.5rem;
+  max-width: 100%;
+}
+
+.pattern-display {
+  margin: 0.5rem 0;
+  font-size: 1.1rem;
+}
+
+.pattern-display span {
+  margin-right: 0.4rem;
+  cursor: pointer;
+}
+
+.notes {
+  font-style: italic;
+  margin-top: 0.5rem;
+}
+
+.actions {
+  margin-top: 0.5rem;
+}
+
+.actions button {
+  padding: 0.4rem 0.8rem;
+  border: 1px solid #333;
+  border-radius: 4px;
+  background: #fff;
+  cursor: pointer;
+}
+
+.actions button:hover {
+  background: #f2f2f2;
+}
