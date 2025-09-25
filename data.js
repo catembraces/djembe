@@ -27,7 +27,6 @@ window.COMPOSITIONS = [
     lessonVideo2:
       "https://www.youtube.com/watch?v=HGkJaa9HOJ8&list=PLA4EVkhMWWc67tAL74s7VdfwX-9KwgH1Z&index=1",
 
-    // Reference recordings
     // for spotify & youtube you need to find the embed link
     spotify:
       "https://open.spotify.com/embed/track/2YapWRnWNiF5VnjMPWRWSP?utm_source=generator",
