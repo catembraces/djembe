@@ -163,3 +163,191 @@ footer {
 .actions button:hover {
   background: #f2f2f2;
 }
+
+/* Setlist at top */
+#setlist {
+  max-width: 900px;
+  margin: 0 auto 1.25rem auto;
+  background: #fff;
+  border: 2px solid #ddd;
+  border-radius: 8px;
+  padding: 0.75rem 1rem;
+}
+#setlist h2 {
+  font-size: 1.1rem;
+  margin-bottom: 0.4rem;
+}
+#setlist ol {
+  padding-left: 1.2rem;
+}
+#setlist a {
+  color: inherit;
+  text-decoration: none;
+  border-bottom: 1px dotted #999;
+}
+#setlist a:hover {
+  border-bottom-color: #333;
+}
+
+/* Alternating card colors: red / white */
+.composition.alt-red {
+  background: #ffe5e5; /* soft red */
+  border-color: #ffb3b3;
+}
+.composition.alt-white {
+  background: #fff;
+}
+
+/* Solfejo & lessons layout tweaks */
+.solfejo .field {
+  margin: 0.25rem 0;
+}
+.solfejo img {
+  max-width: 100%;
+  height: auto;
+  display: block;
+  margin-top: 0.4rem;
+}
+.lessons-wrap .lesson {
+  margin-bottom: 0.75rem;
+}
+.cantigas iframe {
+  width: 100%;
+  border: 0;
+  border-radius: 8px;
+  aspect-ratio: 16 / 9;
+}
+
+/* ========== Aulas layout (stack on mobile, side-by-side on desktop) ========== */
+.lessons-wrap .lessons {
+  display: grid;
+  grid-template-columns: 1fr; /* mobile: stacked */
+  gap: 0.75rem;
+}
+
+.lessons-wrap .lesson {
+  background: #f8f8f8;
+  border: 1px solid #e6e6e6;
+  border-radius: 8px;
+  padding: 0.75rem;
+}
+
+.lessons-wrap .lesson h4 {
+  margin: 0 0 0.5rem 0;
+}
+
+.lessons-wrap .lesson video,
+.lessons-wrap .lesson iframe {
+  width: 100%;
+  border: 0;
+  border-radius: 8px;
+  aspect-ratio: 16 / 9;
+}
+
+/* desktop breakpoint: put lessons side-by-side */
+@media (min-width: 900px) {
+  .lessons-wrap .lessons {
+    grid-template-columns: 1fr 1fr; /* two columns */
+  }
+}
+
+/* ========== Cantigas embeds (smaller views) ========== */
+.cantigas {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  align-items: flex-start;
+}
+
+/* Make each embed a compact card that stays small on desktop */
+.cantigas iframe {
+  width: min(100%, 360px); /* cap width so they look compact */
+  aspect-ratio: 16 / 9;
+  border: 0;
+  border-radius: 8px;
+}
+
+/* Optional: on very wide screens keep them small/tidy and start a new row */
+@media (min-width: 900px) {
+  .cantigas iframe {
+    flex: 0 1 360px; /* prefer ~360px width tiles */
+  }
+}
+
+/* ---------- Lessons two-up on desktop (you already have something similar) ---------- */
+.lessons-wrap .lessons {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0.75rem;
+}
+@media (min-width: 900px) {
+  .lessons-wrap .lessons {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+.lessons-wrap .lesson {
+  background: #f8f8f8;
+  border: 1px solid #e6e6e6;
+  border-radius: 8px;
+  padding: 0.75rem;
+}
+.lessons-wrap .lesson h4 {
+  margin: 0 0 0.5rem 0;
+}
+.lessons-wrap .lesson video,
+.lessons-wrap .lesson iframe {
+  width: 100%;
+  border: 0;
+  border-radius: 8px;
+  aspect-ratio: 16 / 9;
+}
+
+/* ---------- Example section (one wider YouTube, but still sensible) ---------- */
+.example iframe.youtube {
+  width: min(100%, 640px); /* cap so it's not huge */
+  aspect-ratio: 16 / 9;
+  border: 0;
+  border-radius: 8px;
+}
+
+/* ---------- Cantigas: compact tiles, so Spotify doesn’t look tiny ---------- */
+.cantigas {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  align-items: flex-start;
+}
+
+/* Tag the iframes by type via JS class; make both compact */
+.cantigas iframe.youtube,
+.cantigas iframe.spotify {
+  width: min(100%, 320px); /* smaller tiles */
+  border: 0;
+  border-radius: 8px;
+}
+
+/* YouTube tile gets aspect ratio */
+.cantigas iframe.youtube {
+  aspect-ratio: 16 / 9;
+}
+
+/* Spotify tile: set a tidy fixed height that matches visually */
+.cantigas iframe.spotify {
+  height: 152px; /* common height for Spotify embeds */
+}
+
+/* Optional: on wide screens, keep them tile-like */
+@media (min-width: 900px) {
+  .cantigas iframe.youtube,
+  .cantigas iframe.spotify {
+    flex: 0 1 320px;
+  }
+}
+
+/* Google Drive lesson embeds */
+.drive-embed {
+  width: min(100%, 480px);
+  aspect-ratio: 16 / 9;
+  border: 0;
+  border-radius: 8px;
+}

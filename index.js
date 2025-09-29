@@ -1,226 +1,255 @@
 /* ============================================================
-   RENDER COMPOSITION SECTIONS (composition-first, no fallbacks)
+   RENDER COMPOSITIONS (composition-first, optional fields)
    ============================================================ */
 
 // Container where cards go
 const compositionContainerEl = document.getElementById("app");
 
-// Read and sort compositions by performance order
+// Read & sort compositions
 const compositionList = (window.COMPOSITIONS || [])
   .slice()
   .sort((a, b) => a.orderInSet - b.orderInSet);
 
-// Helper: create element with attrs + children
-function createEl(tagName, attrs = {}, ...children) {
-  const el = document.createElement(tagName);
-  for (const [key, val] of Object.entries(attrs)) {
-    if (key === "class") el.className = val;
-    else if (key === "html") el.innerHTML = val; // only for trusted strings
-    else el.setAttribute(key, val);
+// Helper: element factory
+function createEl(tag, attrs = {}, ...children) {
+  const el = document.createElement(tag);
+  for (const [k, v] of Object.entries(attrs)) {
+    if (k === "class") el.className = v;
+    else if (k === "html") el.innerHTML = v; // only for trusted strings
+    else el.setAttribute(k, v);
   }
   children
     .flat()
     .filter(Boolean)
-    .forEach((child) => {
-      el.appendChild(
-        typeof child === "string" ? document.createTextNode(child) : child
-      );
+    .forEach((c) => {
+      el.appendChild(typeof c === "string" ? document.createTextNode(c) : c);
     });
   return el;
 }
 
-// Render solfejo as <span> tokens
-function renderSolfejoSpans(solfejoText = "") {
-  const wrap = createEl("div", { class: "pattern-display" });
-  solfejoText
-    .trim()
-    .split(/\s+/)
-    .filter(Boolean)
-    .forEach((token) => {
-      wrap.appendChild(createEl("span", {}, token));
-    });
-  return wrap;
-}
-
-// Build each composition card
-compositionList.forEach((comp) => {
-  const mediaBlock = createEl(
-    "div",
-    { class: "media" },
-    comp.spotify
-      ? createEl("iframe", {
-          src: comp.spotify,
-          allow:
-            "autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture",
-        })
-      : null,
-    comp.youtube
-      ? createEl("iframe", { src: comp.youtube, allow: "fullscreen" })
-      : null,
-    comp.lessonVideo
-      ? createEl("video", { controls: "", src: comp.lessonVideo })
-      : null,
-    comp.solfejoAudio
-      ? createEl("audio", { controls: "", src: comp.solfejoAudio })
-      : null
+/* ---------- Setlist (top order list) ---------- */
+(function renderSetlist() {
+  if (!compositionList.length) return;
+  const header = document.querySelector("header") || document.body;
+  const setlist = createEl(
+    "nav",
+    { id: "setlist" },
+    createEl("h2", {}, "Setlist"),
+    createEl(
+      "ol",
+      {},
+      ...compositionList.map((comp) => {
+        const anchorId = `comp-${comp.orderInSet}`;
+        return createEl(
+          "li",
+          {},
+          createEl(
+            "a",
+            { href: `#${anchorId}` },
+            `${comp.orderInSet}. ${comp.title}`
+          )
+        );
+      })
+    )
   );
+  header.insertAdjacentElement("afterend", setlist);
+})();
 
+/* ---------- Cards ---------- */
+compositionList.forEach((comp, i) => {
+  const anchorId = `comp-${comp.orderInSet}`;
+  const isAlt = i % 2 === 0; // 0,2,4... red; 1,3,5... white
+
+  // Mode tag (e.g., "com mãos", "baquetas")
   const tagRow = createEl(
     "p",
     { class: "tags" },
-    comp.mode ? createEl("span", { class: "tag" }, comp.mode) : null,
-    comp.bpm ? createEl("span", { class: "tag" }, `${comp.bpm} bpm`) : null
+    comp.mode ? createEl("span", { class: "tag" }, comp.mode) : null
   );
 
+  /* --- Solfejo fields with N/A fallbacks --- */
+  const solfejoNameNode = createEl(
+    "p",
+    { class: "field" },
+    createEl("strong", {}, "Solfejo: "),
+    comp.solfejoName ? comp.solfejoName : "N/A"
+  );
+
+  const solfejoAudioNode = createEl(
+    "div",
+    { class: "field" },
+    createEl("strong", {}, "Áudio: ")
+  );
+  if (comp.solfejoAudio && comp.solfejoAudio !== "N/A") {
+    solfejoAudioNode.appendChild(
+      createEl("audio", { controls: "", src: comp.solfejoAudio })
+    );
+  } else {
+    solfejoAudioNode.appendChild(document.createTextNode("N/A"));
+  }
+
+  const solfejoImageNode = createEl(
+    "div",
+    { class: "field" },
+    createEl("strong", {}, "Imagem do solfejo: ")
+  );
+  if (comp.solfejoImage) {
+    solfejoImageNode.appendChild(
+      createEl("img", {
+        src: comp.solfejoImage,
+        alt: `Solfejo - ${comp.title}`,
+      })
+    );
+  } else {
+    solfejoImageNode.appendChild(document.createTextNode("N/A"));
+  }
+
+  /* --- Lessons (Aulas) --- */
+  const lessonsWrap = createEl("div", { class: "lessons" });
+
+  function buildLesson(label, url) {
+    if (!url) return null;
+
+    const isYouTube = url.includes("youtube.com") || url.includes("youtu.be");
+    const isDrive = url.includes("drive.google.com");
+
+    let mediaEl;
+    if (isYouTube) {
+      mediaEl = createEl("iframe", {
+        src: url,
+        allow: "fullscreen",
+        loading: "lazy",
+        class: "youtube-embed",
+      });
+    } else if (isDrive) {
+      mediaEl = createEl("iframe", {
+        src: url,
+        allow: "fullscreen",
+        loading: "lazy",
+        class: "drive-embed",
+      });
+    } else {
+      mediaEl = createEl("video", { controls: "", src: url });
+    }
+
+    return createEl(
+      "div",
+      { class: "lesson" },
+      createEl("h4", {}, label),
+      mediaEl
+    );
+  }
+
+  const lesson1 = buildLesson("Aula 1", comp.lessonVideo1);
+  const lesson2 = buildLesson("Aula 2", comp.lessonVideo2);
+
+  if (lesson1) lessonsWrap.appendChild(lesson1);
+  if (lesson2) lessonsWrap.appendChild(lesson2);
+
+  /* --- Example (between Aulas and Cantigas) --- */
+  const exampleSection = comp.exampleYoutube
+    ? createEl(
+        "section",
+        { class: "example" },
+        createEl("h3", {}, "Exemplo (toque inteiro)"),
+        createEl("iframe", {
+          src: comp.exampleYoutube,
+          allow: "fullscreen",
+          loading: "lazy",
+          class: "youtube-embed example-embed",
+        })
+      )
+    : null;
+
+  /* --- Cantigas (compact, labeled tiles) --- */
+  const cantigasTiles = [];
+  if (comp.spotify) {
+    cantigasTiles.push(
+      createEl(
+        "figure",
+        { class: "tile" },
+        createEl("figcaption", { class: "tile-label" }, "Spotify"),
+        createEl("iframe", {
+          src: comp.spotify,
+          allow:
+            "autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture",
+          loading: "lazy",
+          class: "spotify-embed",
+        })
+      )
+    );
+  }
+  if (comp.youtube) {
+    cantigasTiles.push(
+      createEl(
+        "figure",
+        { class: "tile" },
+        createEl("figcaption", { class: "tile-label" }, "YouTube"),
+        createEl("iframe", {
+          src: comp.youtube,
+          allow: "fullscreen",
+          loading: "lazy",
+          class: "youtube-embed",
+        })
+      )
+    );
+  }
+  const cantigasSection = cantigasTiles.length
+    ? createEl(
+        "section",
+        { class: "cantigas" },
+        createEl("h3", {}, "Cantigas (referências)"),
+        ...cantigasTiles
+      )
+    : null;
+
+  /* --- Lyrics (optional) & Notes (optional) --- */
+  const lyricsNode = comp.lyrics
+    ? createEl(
+        "details",
+        { class: "lyrics" },
+        createEl("summary", {}, "Letra"),
+        createEl("pre", {}, comp.lyrics)
+      )
+    : null;
+
+  const notesNode = comp.notes
+    ? createEl("p", { class: "notes" }, comp.notes)
+    : null;
+
+  /* --- Assemble card --- */
   const cardEl = createEl(
     "section",
-    { class: "composition" },
+    {
+      class: `composition ${isAlt ? "alt-red" : "alt-white"}`,
+      id: anchorId,
+    },
     createEl("h2", {}, `${comp.orderInSet}. ${comp.title}`),
     tagRow,
-    mediaBlock,
-    createEl("h3", {}, "Solfejo"),
-    comp.solfejoName
-      ? createEl("p", { class: "solfejo-name" }, comp.solfejoName)
-      : null,
-    renderSolfejoSpans(comp.solfejoText || ""),
-    comp.notes ? createEl("p", { class: "notes" }, comp.notes) : null,
+
     createEl(
-      "div",
-      { class: "actions" },
-      createEl(
-        "button",
-        {
-          class: "load-solfejo",
-          "data-pattern": comp.solfejoText || "",
-        },
-        "usar solfejo no metrônomo"
-      )
-    )
+      "section",
+      { class: "solfejo" },
+      createEl("h3", {}, "Solfejo"),
+      solfejoNameNode,
+      solfejoAudioNode,
+      solfejoImageNode
+    ),
+
+    lessonsWrap.childNodes.length
+      ? createEl(
+          "section",
+          { class: "lessons-wrap" },
+          createEl("h3", {}, "Aulas"),
+          lessonsWrap
+        )
+      : null,
+
+    exampleSection,
+    cantigasSection,
+    lyricsNode,
+    notesNode
   );
 
   compositionContainerEl.appendChild(cardEl);
 });
-
-/* ============================================================
-   METRONOME + PATTERN HIGHLIGHTER (plain JS)
-   ============================================================ */
-
-// Controls
-const metronomeBpmInput = document.getElementById("bpm");
-const metronomePatternInput = document.getElementById("pattern");
-const metronomeStartButton = document.getElementById("start");
-const metronomeStopButton = document.getElementById("stop");
-const metronomePatternDisplay = document.getElementById("patternView");
-
-// State
-let audioContext = null;
-let metronomeIntervalId = null;
-let solfejoTokens = []; // e.g., ["da-chi","da-chi","~"]
-let currentSyllableIndex = 0; // which token is active
-
-// Utilities
-function tokenizeSolfejo(text) {
-  return text.trim().split(/\s+/).filter(Boolean);
-}
-
-function renderMetronomePattern() {
-  if (!metronomePatternDisplay) return;
-  const frag = document.createDocumentFragment();
-  solfejoTokens.forEach((syllable, i) => {
-    const span = document.createElement("span");
-    span.textContent = syllable;
-    if (i === currentSyllableIndex) span.classList.add("active"); // style in CSS
-    frag.appendChild(span);
-  });
-  metronomePatternDisplay.innerHTML = "";
-  metronomePatternDisplay.appendChild(frag);
-}
-
-function playClick(ac, isAccent = false) {
-  const osc = ac.createOscillator();
-  const gain = ac.createGain();
-  osc.type = "square";
-  osc.frequency.value = isAccent ? 1600 : 1000;
-  gain.gain.setValueAtTime(0, ac.currentTime);
-  gain.gain.linearRampToValueAtTime(
-    isAccent ? 0.08 : 0.05,
-    ac.currentTime + 0.002
-  );
-  gain.gain.exponentialRampToValueAtTime(0.0001, ac.currentTime + 0.06);
-  osc.connect(gain).connect(ac.destination);
-  osc.start();
-  osc.stop(ac.currentTime + 0.08);
-}
-
-function advanceMetronomeStep() {
-  if (!solfejoTokens.length) return;
-  const token = solfejoTokens[currentSyllableIndex];
-  const isAccent = currentSyllableIndex === 0; // accent first of cycle
-  if (token !== "~") playClick(audioContext, isAccent);
-  renderMetronomePattern();
-  currentSyllableIndex = (currentSyllableIndex + 1) % solfejoTokens.length;
-}
-
-function startMetronome() {
-  stopMetronome();
-  if (!audioContext)
-    audioContext = new (window.AudioContext || window.webkitAudioContext)();
-  currentSyllableIndex = 0;
-  const bpm = Math.max(
-    30,
-    Math.min(220, Number(metronomeBpmInput?.value) || 108)
-  );
-  const intervalMs = 60000 / bpm;
-  metronomeIntervalId = setInterval(advanceMetronomeStep, intervalMs);
-  advanceMetronomeStep();
-}
-
-function stopMetronome() {
-  if (metronomeIntervalId) clearInterval(metronomeIntervalId);
-  metronomeIntervalId = null;
-  currentSyllableIndex = 0;
-  renderMetronomePattern();
-}
-
-function setMetronomePatternFromInput() {
-  if (!metronomePatternInput) return;
-  solfejoTokens = tokenizeSolfejo(metronomePatternInput.value);
-  renderMetronomePattern();
-}
-
-// Wire up
-metronomeStartButton?.addEventListener("click", startMetronome);
-metronomeStopButton?.addEventListener("click", stopMetronome);
-metronomeBpmInput?.addEventListener("change", () => {
-  if (metronomeIntervalId) startMetronome();
-});
-metronomePatternInput?.addEventListener("input", setMetronomePatternFromInput);
-metronomePatternInput?.addEventListener("change", setMetronomePatternFromInput);
-
-// Load pattern from any composition card button
-document.querySelectorAll(".load-solfejo").forEach((button) => {
-  button.addEventListener("click", (e) => {
-    const pattern = e.currentTarget.getAttribute("data-pattern") || "";
-    if (metronomePatternInput) metronomePatternInput.value = pattern;
-    setMetronomePatternFromInput();
-    window.scrollTo({ top: 0, behavior: "smooth" });
-  });
-});
-
-// Allow clicking the spans inside a composition to load it
-document
-  .querySelectorAll(".composition .pattern-display")
-  .forEach((display) => {
-    display.addEventListener("click", () => {
-      const seq = Array.from(display.querySelectorAll("span"))
-        .map((s) => s.textContent.trim())
-        .filter(Boolean)
-        .join(" ");
-      if (metronomePatternInput) metronomePatternInput.value = seq;
-      setMetronomePatternFromInput();
-      window.scrollTo({ top: 0, behavior: "smooth" });
-    });
-  });
-
-// Init display once on load
-setMetronomePatternFromInput();
